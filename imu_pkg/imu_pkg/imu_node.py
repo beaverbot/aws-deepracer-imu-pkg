@@ -51,7 +51,7 @@ class IMUNode(Node):
         ## following params can now be configured in config file config/imu_params.yaml
         self.imu_frame = self.declare_parameter("~imu_frame", 'imu_link').value
 
-        self.pub_topic = self.declare_parameter("~pub_topic", '/imu/data_raw').value
+        self.pub_topic = self.declare_parameter("~pub_topic", '/imu_msg/raw').value
         ## hex to decimal of 0x69 = 105, change it in config file as needed
         self.imu_i2c_address = self.declare_parameter("~device_address", 105).value
         self.imu_i2c_bus_id = self.declare_parameter("~bus_id", 1).value
