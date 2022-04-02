@@ -48,6 +48,15 @@ class IMUNode(Node):
         super().__init__("imu_node")
         self.get_logger().info("imu_node started.")
         self.stop_queue = threading.Event()
+        ## following params can now be configured in config file config/imu_params.yaml
+        self.imu_frame = self.declare_parameter("~imu_frame", 'imu_link').value
+
+        self.pub_topic = self.declare_parameter("~pub_topic", '/imu/data_raw').value
+        ## hex to decimal of 0x69 = 105, change it in config file as needed
+        self.imu_i2c_address = self.declare_parameter("~device_address", 105).value
+        self.imu_i2c_bus_id = self.declare_parameter("~bus_id", 1).value
+        self.publish_rate = self.declare_parameter("~publish_rate", 25).value
+
 
         # Publisher that sends combined sensor messages with IMU acceleration and gyroscope data.
         self.imu_message_pub_cb_grp = ReentrantCallbackGroup()
@@ -77,7 +86,7 @@ class IMUNode(Node):
         try:
 
             # self.get_logger().info(f"Trying to initialize the sensor at {constants.BMI160_ADDR} on bus {constants.I2C_BUS_ID}")
-            self.sensor = Driver(constants.BMI160_ADDR, constants.I2C_BUS_ID) # Depends on changes to library
+            self.sensor = Driver(self.imu_i2c_address, self.imu_i2c_bus_id) # Depends on changes to library
 
             # Defining the Range for Accelerometer and Gyroscope
             self.sensor.setFullScaleAccelRange(definitions.ACCEL_RANGE_4G, constants.ACCEL_RANGE_4G_FLOAT)
@@ -115,8 +124,8 @@ class IMUNode(Node):
 
     def processor(self):
 
-        self.get_logger().info(f"Publishing messages at {constants.IMU_MSG_RATE} Hz.")
-        self.rate = self.create_rate(constants.IMU_MSG_RATE)
+        self.get_logger().info(f"Publishing messages at {self.publish_rate} Hz.")
+        self.rate = self.create_rate(self.publish_rate)
 
         while not self.stop_queue.is_set() and rclpy.ok():
             try:
@@ -154,6 +163,8 @@ class IMUNode(Node):
             
             # add header
             imu_msg.header.stamp = self.get_clock().now().to_msg()
+            imu_msg.header.frame_id = self.imu_frame
+
 
             self.get_logger().debug('gz: {:+.0f}'.format(gyro.z))
 

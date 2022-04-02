@@ -1,5 +1,5 @@
 I2C_BUS_ID = 1
-BMI160_ADDR = 0x68
+BMI160_ADDR = 0x69
 
 IMU_MSG_TOPIC = "/imu_msg/raw"
 IMU_MSG_RATE = 25

@@ -1,0 +1,7 @@
+/imu_node:
+  ros__parameters:
+    ~device_address: 105
+    ~bus_id: 1
+    ~imu_frame: 'imu_link'
+    ~imu_topic: '/imu_msg/raw'
+    ~publish_rate: 25
