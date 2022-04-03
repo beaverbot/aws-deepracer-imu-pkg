@@ -53,8 +53,10 @@ def generate_launch_description():
   imu_tools_tf = Node(
         package="imu_tf",
         executable="transform",
-        parameters = [imu_params_config]
-    )
+        parameters=[{
+          'source_frame': 'imu_link',
+          'target_frame': 'plane',
+    }])
   
   ld = LaunchDescription()
   ld.add_action(imu_node)

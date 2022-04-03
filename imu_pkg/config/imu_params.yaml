@@ -4,8 +4,5 @@
     ~bus_id: 1
     ~imu_frame: 'imu_link'
     ~imu_pub_topic: '/imu/data_raw'
-    ~publish_rate: 25
-/transform:
-  ros__parameters:
-    source_frame: 'plane'
-    target_frame: 'imu_link'
+    ~publish_rate: 60
+
