@@ -50,18 +50,18 @@ class IMUNode(Node):
         self.stop_queue = threading.Event()
         ## following params can now be configured in config file config/imu_params.yaml
         self.imu_frame = self.declare_parameter("~imu_frame", 'imu_link').value
-
-        self.pub_topic = self.declare_parameter("~pub_topic", '/imu_msg/raw').value
+        self.pub_topic = self.declare_parameter("~imu_pub_topic", '/imu_msg/raw').value
+        
         ## hex to decimal of 0x69 = 105, change it in config file as needed
         self.imu_i2c_address = self.declare_parameter("~device_address", 105).value
         self.imu_i2c_bus_id = self.declare_parameter("~bus_id", 1).value
         self.publish_rate = self.declare_parameter("~publish_rate", 25).value
-
+        self.get_logger().info(f"imu_frame:: {self.imu_frame} pub_topic:: {self.pub_topic} publish_rate::{self.publish_rate}")
 
         # Publisher that sends combined sensor messages with IMU acceleration and gyroscope data.
         self.imu_message_pub_cb_grp = ReentrantCallbackGroup()
         self.imu_message_publisher = self.create_publisher(Imu,
-                                                            constants.IMU_MSG_TOPIC,
+                                                            self.pub_topic,
                                                             1,
                                                             callback_group=self.imu_message_pub_cb_grp)
 
@@ -69,7 +69,7 @@ class IMUNode(Node):
         self.timer_count = 0
         self.timer = self.create_timer(5.0, self.timer_callback)
 
-        self.get_logger().info("IMU node successfully created")
+        self.get_logger().info(f"IMU node successfully created. publishing on topic:: {self.pub_topic}")
 
 
     def timer_callback(self):

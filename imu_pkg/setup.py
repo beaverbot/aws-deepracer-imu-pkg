@@ -14,8 +14,11 @@
 #   limitations under the License.                                              #
 #################################################################################
 
-from setuptools import setup
+
 import os
+from setuptools import setup
+from glob import glob
+
 
 package_name = "imu_pkg"
 
@@ -27,6 +30,11 @@ setup(
         ("share/ament_index/resource_index/packages",
             ["resource/" + package_name]),
         ("share/" + package_name, ["package.xml"]),
+        (os.path.join('share', package_name), glob('launch/*.launch.py')),
+        (os.path.join('share', package_name, 'urdf'), glob('urdf/*')),
+        (os.path.join('share', package_name, 'rviz'), glob('rviz/*')),
+        (os.path.join('share', package_name, 'mesh'), glob('mesh/*')),
+        (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
         (os.path.join("share", package_name), ["launch/imu_pkg_launch.py"])
     ],
     install_requires=["setuptools","BMI160-i2c","smbus2"],
@@ -38,7 +46,8 @@ setup(
     tests_require=["pytest"],
     entry_points={
         "console_scripts": [
-            "imu_node = imu_pkg.imu_node:main"
+            "imu_node = imu_pkg.imu_node:main",
+            "imu_tf_pub = imu_pkg.imu_tf_pub:main"
         ],
     },
 )
