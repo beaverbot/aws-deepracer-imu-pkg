@@ -44,22 +44,23 @@ def generate_launch_description():
             parameters = [imu_params_config]
         )
 
-  imu_tf_pub = Node(
-            package='imu_pkg',
-            executable='imu_tf_pub',
-            name='imu_tf_pub',
-            parameters = [imu_params_config]
-        )
   imu_tools_madgwick = Node(
         package="imu_fusion_madgwick",
         executable="imu_fusion_madgwick_node",
         parameters = [imu_params_config]
     )
   
+  imu_tools_tf = Node(
+        package="imu_tf",
+        executable="transform",
+        parameters = [imu_params_config]
+    )
+  
   ld = LaunchDescription()
   ld.add_action(imu_node)
-  ld.add_action(imu_tf_pub)
   ld.add_action(imu_tools_madgwick)
+  ld.add_action(imu_tools_tf)
+
   
 
   return ld

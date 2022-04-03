@@ -47,7 +47,6 @@ setup(
     entry_points={
         "console_scripts": [
             "imu_node = imu_pkg.imu_node:main",
-            "imu_tf_pub = imu_pkg.imu_tf_pub:main"
         ],
     },
 )
