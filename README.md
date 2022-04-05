@@ -1,3 +1,15 @@
+
+# This fork adds following capabilities:
+1. Ability to set the config params for device_address, publication topic, frame_id, publishing rate etc.
+
+2. Simulation of IMU movements in RVIZ2
+
+For step-by-step details follow this article:
+https://robofoundry.medium.com/using-bmi160-imu-with-ros2-ecb550851efa
+
+
+### Original AWS DeepRacer ReadMe below
+
 # AWS DeepRacer Inertial Measurement Unit
 
 ## Overview
