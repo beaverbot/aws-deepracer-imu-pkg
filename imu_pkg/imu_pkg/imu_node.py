@@ -142,16 +142,19 @@ class IMUNode(Node):
             data = self.sensor.getMotion6()
 
             # fetch all gyro values - return in rad / sec
+            # update for fork - original repo had x & y swapped and z values reversed/upside down. Due to this the IMU data was not showing correct
+            # so fixed the swap and z direction for both gyro and accel values
+
             gyro = Vector3()
-            gyro.x = data[1] / constants.CONVERSION_MASK_16BIT_FLOAT * constants.GYRO_RANGE_250_FLOAT * (math.pi / 180) # swap x and y
-            gyro.y = data[0] / constants.CONVERSION_MASK_16BIT_FLOAT * constants.GYRO_RANGE_250_FLOAT * (math.pi / 180) # swap x and y
-            gyro.z = data[2] / constants.CONVERSION_MASK_16BIT_FLOAT * constants.GYRO_RANGE_250_FLOAT * (math.pi / 180) * -1 # upside-down
+            gyro.x = data[0] / constants.CONVERSION_MASK_16BIT_FLOAT * constants.GYRO_RANGE_250_FLOAT * (math.pi / 180) 
+            gyro.y = data[1] / constants.CONVERSION_MASK_16BIT_FLOAT * constants.GYRO_RANGE_250_FLOAT * (math.pi / 180) 
+            gyro.z = data[2] / constants.CONVERSION_MASK_16BIT_FLOAT * constants.GYRO_RANGE_250_FLOAT * (math.pi / 180) 
             
             # fetch all accel values - return in m/s²
             accel = Vector3()
-            accel.x = data[4] * constants.GRAVITY_CONSTANT / constants.CONVERSION_MASK_16BIT_FLOAT * constants.ACCEL_RANGE_4G_FLOAT # swap x and y
-            accel.y = data[3] * constants.GRAVITY_CONSTANT / constants.CONVERSION_MASK_16BIT_FLOAT * constants.ACCEL_RANGE_4G_FLOAT # swap x and y
-            accel.z = data[5] * constants.GRAVITY_CONSTANT / constants.CONVERSION_MASK_16BIT_FLOAT * constants.ACCEL_RANGE_4G_FLOAT * -1 # upside-down
+            accel.x = data[3] * constants.GRAVITY_CONSTANT / constants.CONVERSION_MASK_16BIT_FLOAT * constants.ACCEL_RANGE_4G_FLOAT 
+            accel.y = data[4] * constants.GRAVITY_CONSTANT / constants.CONVERSION_MASK_16BIT_FLOAT * constants.ACCEL_RANGE_4G_FLOAT 
+            accel.z = data[5] * constants.GRAVITY_CONSTANT / constants.CONVERSION_MASK_16BIT_FLOAT * constants.ACCEL_RANGE_4G_FLOAT 
             
             imu_msg.angular_velocity = gyro
             imu_msg.angular_velocity_covariance = constants.EMPTY_ARRAY_9
