@@ -1,3 +1,77 @@
+# This fork of the robofoundry fork implements the following features:
+1. Fix for conversion to g when calculating the linear acceleration.
+
+2. Documentation of our wiring for a Jetson Nano
+
+3. Documentation for a fix to the BMI160-i2c library that adds missing constants, enabling usage of the gyroscope calibration
+
+4. Autocalibration for the gyroscope
+
+## Fix to BMI160-i2c library
+Some constants are missing in definitions.py. A fix has been made, but not implemented.
+We will implement this manually.
+See the files to be fixed [here](https://github.com/lefuturiste/BMI160-i2c/pull/12/commits/006d53002f381236a8ed9de33f903a395677978f).
+
+If the package was installed via pip, the files to be adjusted can be found in `~/.local/lib/python3.6/site-packages/BMI160_i2c`.
+Adjust `__init__.py` and `definitions.py` according to the pull request above.
+
+This actually just equates to pasting the following lines at the bottom of definitions.py.
+The changes in `__init__.py` don't affect functionality.
+```
+# No Motion
+NOMOTION_EN_BIT     = (0)
+NOMOTION_EN_LEN     = (3)
+NOMOTION_INT_BIT    = (7)
+NOMOTION_DUR_BIT    = (2)
+NOMOTION_DUR_LEN    = (6)
+NOMOTION_SEL_BIT    = (0)
+NOMOTION_SEL_LEN    = (1)
+
+# Frequency
+ACCEL_RATE_SEL_BIT  = (0)
+ACCEL_RATE_SEL_LEN  = (4)
+```
+
+Additionally, the following line should be added on line 5.
+This fix is necessary for calibrating the gyroscope, but wasn't fixed in the above fix.
+`GYR_OFFSET_EN       = (7)	# Added as part of a manual fix`
+
+## Wiring
+BME160 pinouts are visible on the bottom of the chip.
+Pins are referred to using the following system, looking at the top of the sensor (the side with the chips on it) with the orientation diagram of the sensor on the bottom right.
+
+|Pinout | |
+|--------|----------|
+| 1- VIN |          |
+| 2- 3V3 | 8-  OCS  |
+| 3- GND | 9-  INT2 |
+| 4- SCL | 10- INT1 |
+| 5- SDA | 11- SCX  |
+| 6- CS  | 12- SDX  |
+| 7- SAO |          |
+
+[Jetson Nano Pinout](https://developer.nvidia.com/embedded/learn/jetson-nano-2gb-devkit-user-guide)
+
+The pins should then be connected from the BME160 to the Jetson Nano.
+
+| BMI160 pin | Jetson Nano pin | Purpose |
+|------------|-----------------|---------|
+| 2          | 1               | 3.3V    |
+| 3          | 9               | GND     |
+| 4          | 28              | I2C CLK |
+| 5          | 27              | I2C SDA |
+
+Once it is wired, the following command should show a device on I2C address 69.
+`sudo i2cdetect -r -y 1`
+
+
+Note that on a new Jetson, the Jetson.GPIO package must be installed to enable GPIO and I2C usage first.
+`sudo pip install Jetson.GPIO`
+`sudo groupadd -f -r gpio`
+`sudo usermod -a -G gpio admetal`
+
+### Original RoboFoundry AWS DeepRacer ReadMe below
+
 
 # This fork adds following capabilities:
 1. Ability to set the config params for device_address, publication topic, frame_id, publishing rate etc.
@@ -75,64 +149,6 @@ Open a terminal on the AWS DeepRacer device and run the following commands as th
 
         cd ~/deepracer_ws/aws-deepracer-imu-pkg && colcon build --packages-select imu_pkg
 
-## Fix for the BMI160-i2c dependency
-Some constants are missing in definitions.py. A fix has been made, but not implemented.
-We will implement this manually.
-See the files to be fixed [here](https://github.com/lefuturiste/BMI160-i2c/pull/12/commits/006d53002f381236a8ed9de33f903a395677978f).
-
-If the package was installed via pip, the files to be adjusted can be found in `~/.local/lib/python3.6/site-packages/BMI160_i2c`.
-Adjust `__init__.py` and `definitions.py` according to the pull request above.
-
-This actually just equates to pasting the following lines at the bottom of definitions.py.
-The changes in `__init__.py` don't affect functionality.
-```
-# No Motion
-NOMOTION_EN_BIT     = (0)
-NOMOTION_EN_LEN     = (3)
-NOMOTION_INT_BIT    = (7)
-NOMOTION_DUR_BIT    = (2)
-NOMOTION_DUR_LEN    = (6)
-NOMOTION_SEL_BIT    = (0)
-NOMOTION_SEL_LEN    = (1)
-
-# Frequency
-ACCEL_RATE_SEL_BIT  = (0)
-ACCEL_RATE_SEL_LEN  = (4)
-```
-
-Additionally, the following line should be added on line 5.
-This fix is necessary for calibrating the gyroscope, but wasn't fixed in the above fix.
-`GYR_OFFSET_EN       = (7)	# Added as part of a manual fix`
-
-## Wiring
-BME160 pinouts are visible on the bottom of the chip.
-Pins are referred to using the following system, looking at the top of the sensor (the side with the chips on it) with the orientation diagram of the sensor on the bottom right.
-
-|Pinout | |
-|--------|----------|
-| 1- VIN |          |
-| 2- 3V3 | 8-  OCS  |
-| 3- GND | 9-  INT2 |
-| 4- SCL | 10- INT1 |
-| 5- SDA | 11- SCX  |
-| 6- CS  | 12- SDX  |
-| 7- SAO |          |
-
-[Jetson Nano Pinout](https://developer.nvidia.com/embedded/learn/jetson-nano-2gb-devkit-user-guide)
-
-The pins should then be connected from the BME160 to the Jetson Nano.
-
-| BMI160 pin | Jetson Nano pin | Purpose |
-|------------|-----------------|---------|
-| 2          | 1               | 3.3V    |
-| 3          | 9               | GND     |
-| 4          | 5               | I2C CLK |
-| 5          | 3               | I2C SDA |
-
-Once it is wired, the following command should show a device on I2C address 69.
-`sudo i2cdetect -r -y 1`
-
-
 ## Usage
 
 The `imu_node` provides the core functionality to combine the sensor data from various sensors connected to the AWS DeepRacer vehicle. Although the node is built to work with the AWS DeepRacer application, you can run it independently for development, testing, and debugging purposes.
@@ -183,4 +199,3 @@ The `imu_pkg_launch.py`, included in this package, provides an example demonstra
 | Topic name | Message type | Description |
 | ---------- | ------------ | ----------- |
 |/`imu_pkg`/`imu_msg`/`raw`|Imu|Publisher that publishes the readings from the IMU in 6 dimensions.|
-
