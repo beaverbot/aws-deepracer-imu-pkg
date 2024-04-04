@@ -100,6 +100,12 @@ class IMUNode(Node):
 
             self.sensor.setAccelOffsetEnabled(True)
 
+            # Get gyroscope offset calibration values. Assumes sensor is unmoving
+            self.sensor.autoCalibrateGyroOffset()
+
+            # Enables offset compensation so the autocalibrated values can be used
+            self.sensor.setGyroOffsetEnabled(True)
+
         except Exception as ex:
             self.get_logger().info(f"Failed to create IMU monitor: {ex}")
             self.observer = None
@@ -155,7 +161,7 @@ class IMUNode(Node):
             accel.x = data[3] * constants.GRAVITY_CONSTANT / constants.CONVERSION_MASK_16BIT_FLOAT * constants.ACCEL_RANGE_4G_FLOAT 
             accel.y = data[4] * constants.GRAVITY_CONSTANT / constants.CONVERSION_MASK_16BIT_FLOAT * constants.ACCEL_RANGE_4G_FLOAT 
             accel.z = data[5] * constants.GRAVITY_CONSTANT / constants.CONVERSION_MASK_16BIT_FLOAT * constants.ACCEL_RANGE_4G_FLOAT 
-            
+
             imu_msg.angular_velocity = gyro
             imu_msg.angular_velocity_covariance = constants.EMPTY_ARRAY_9
             imu_msg.linear_acceleration = accel
