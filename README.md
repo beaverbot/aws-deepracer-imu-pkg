@@ -34,7 +34,10 @@ ACCEL_RATE_SEL_LEN  = (4)
 
 Additionally, the following line should be added on line 5.
 This fix is necessary for calibrating the gyroscope, but wasn't fixed in the above fix.
-`GYR_OFFSET_EN       = (7)	# Added as part of a manual fix`
+
+```
+GYR_OFFSET_EN       = (7)	# Added as part of a manual fix
+```
 
 ## Wiring
 BME160 pinouts are visible on the bottom of the chip.
@@ -62,13 +65,41 @@ The pins should then be connected from the BME160 to the Jetson Nano.
 | 5          | 27              | I2C SDA |
 
 Once it is wired, the following command should show a device on I2C address 69.
-`sudo i2cdetect -r -y 1`
-
+```
+sudo i2cdetect -r -y 1
+```
 
 Note that on a new Jetson, the Jetson.GPIO package must be installed to enable GPIO and I2C usage first.
-`sudo pip install Jetson.GPIO`
-`sudo groupadd -f -r gpio`
-`sudo usermod -a -G gpio admetal`
+```
+sudo pip install Jetson.GPIO
+sudo groupadd -f -r gpio
+sudo usermod -a -G gpio admetal
+```
+
+## Build
+
+Recommended to build with `--symlink-install`, which makes symlinks to original Python files to install, so when changing Python code, don't have to rebuild.
+
+```
+colcon build --packages-select imu_pkg --symlink-install
+```
+
+## Run
+
+We are using ROS2 Humble, not Foxy as in the original. If it is not already done in ~/.bashrc, the ros2_ws should be sourced.
+The node can then be run in one terminal, and output checked by echoing the topic in another. The ros2_ws must be sourced in both.
+
+```
+# Launch the node
+source ~/ros2_ws/install/setup.bash
+ros2 launch imu_pkg imu_pkg_launch.py
+```
+
+```
+# Check the messages published by the node
+source ~/ros2_ws/install/setup.bash
+ros2 topic echo imu/data_raw
+```
 
 ### Original RoboFoundry AWS DeepRacer ReadMe below
 
