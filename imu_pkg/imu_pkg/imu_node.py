@@ -152,15 +152,15 @@ class IMUNode(Node):
             # so fixed the swap and z direction for both gyro and accel values
 
             gyro = Vector3()
-            gyro.x = data[0] / constants.CONVERSION_MASK_16BIT_FLOAT * constants.GYRO_RANGE_250_FLOAT * (math.pi / 180) 
-            gyro.y = data[1] / constants.CONVERSION_MASK_16BIT_FLOAT * constants.GYRO_RANGE_250_FLOAT * (math.pi / 180) 
-            gyro.z = data[2] / constants.CONVERSION_MASK_16BIT_FLOAT * constants.GYRO_RANGE_250_FLOAT * (math.pi / 180) 
+            gyro.x = data[0] / constants.CONVERSION_MASK_GYRO_16BIT_FLOAT * constants.GYRO_RANGE_250_FLOAT * (math.pi / 180) 
+            gyro.y = data[1] / constants.CONVERSION_MASK_GYRO_16BIT_FLOAT * constants.GYRO_RANGE_250_FLOAT * (math.pi / 180) 
+            gyro.z = data[2] / constants.CONVERSION_MASK_GYRO_16BIT_FLOAT * constants.GYRO_RANGE_250_FLOAT * (math.pi / 180) 
             
             # fetch all accel values - return in m/s²
             accel = Vector3()
-            accel.x = data[3] * constants.GRAVITY_CONSTANT / constants.CONVERSION_MASK_16BIT_FLOAT * constants.ACCEL_RANGE_4G_FLOAT 
-            accel.y = data[4] * constants.GRAVITY_CONSTANT / constants.CONVERSION_MASK_16BIT_FLOAT * constants.ACCEL_RANGE_4G_FLOAT 
-            accel.z = data[5] * constants.GRAVITY_CONSTANT / constants.CONVERSION_MASK_16BIT_FLOAT * constants.ACCEL_RANGE_4G_FLOAT 
+            accel.x = data[3] * constants.GRAVITY_CONSTANT / constants.CONVERSION_MASK_GRAV_16BIT_FLOAT * constants.ACCEL_RANGE_4G_FLOAT 
+            accel.y = data[4] * constants.GRAVITY_CONSTANT / constants.CONVERSION_MASK_GRAV_16BIT_FLOAT * constants.ACCEL_RANGE_4G_FLOAT 
+            accel.z = data[5] * constants.GRAVITY_CONSTANT / constants.CONVERSION_MASK_GRAV_16BIT_FLOAT * constants.ACCEL_RANGE_4G_FLOAT 
 
             imu_msg.angular_velocity = gyro
             imu_msg.angular_velocity_covariance = constants.EMPTY_ARRAY_9
@@ -190,14 +190,10 @@ def main(args=None):
         with IMUNode() as imu_node:
             executor = MultiThreadedExecutor()
             rclpy.spin(imu_node, executor)
-        # Destroy the node explicitly
-        # (optional - otherwise it will be done automatically
-        # when the garbage collector destroys the node object)
-        imu_node.destroy_node()
+            # imu_node.destroy_node()
     except KeyboardInterrupt:
-        pass    
-    rclpy.shutdown()
-
+        pass
+    # rclpy.shutdown()
 
 if __name__ == "__main__":
     main()
