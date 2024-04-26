@@ -39,6 +39,15 @@ This fix is necessary for calibrating the gyroscope, but wasn't fixed in the abo
 GYR_OFFSET_EN       = (7)	# Added as part of a manual fix
 ```
 
+Another unrelated fix involves getAccelerationY() in `__init__.py`
+It is unnecessary with our current code, but is noted in case it is needed.
+A constant has been defined incorrectly on line 1786 in `~/.local/lib/python3.10/site-packages/BMI160_i2c/__init__.py`.
+Replace `registers.ACCEL_XYL` with `registers.ACCEL_Y_L`
+```
+    raw = self._regs_read(registers.ACCEL_Y_L, 2)
+```
+
+
 ## Wiring
 BME160 pinouts are visible on the bottom of the chip.
 Pins are referred to using the following system, looking at the top of the sensor (the side with the chips on it) with the orientation diagram of the sensor on the bottom right.
