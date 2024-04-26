@@ -88,15 +88,15 @@ class IMUNode(Node):
             # self.get_logger().info(f"Trying to initialize the sensor at {constants.BMI160_ADDR} on bus {constants.I2C_BUS_ID}")
             self.sensor = Driver(self.imu_i2c_address, self.imu_i2c_bus_id) # Depends on changes to library
 
-            # Defining the Range for Accelerometer and Gyroscope
-            self.sensor.setFullScaleAccelRange(definitions.ACCEL_RANGE_4G, constants.ACCEL_RANGE_4G_FLOAT)
-            self.sensor.setFullScaleGyroRange(definitions.GYRO_RANGE_250, constants.GYRO_RANGE_250_FLOAT)
+            # Defining the Range for Accelerometer and Gyroscope. Use default ACCEL_RANGE_2G and GYRO_RANGE_250
+            # self.sensor.setFullScaleAccelRange(definitions.ACCEL_RANGE_4G, constants.ACCEL_RANGE_4G_FLOAT)
+            # self.sensor.setFullScaleGyroRange(definitions.GYRO_RANGE_250, constants.GYRO_RANGE_250_FLOAT)
 
             # Calibrating Accelerometer - assuming that it stands on 'flat ground'.
             # Gravity points downwards, hence Z should be calibrated to -1.
             self.sensor.autoCalibrateXAccelOffset(0)
             self.sensor.autoCalibrateYAccelOffset(0)
-            self.sensor.autoCalibrateZAccelOffset(-1)
+            self.sensor.autoCalibrateZAccelOffset(1)
 
             self.sensor.setAccelOffsetEnabled(True)
 
@@ -152,15 +152,18 @@ class IMUNode(Node):
             # so fixed the swap and z direction for both gyro and accel values
 
             gyro = Vector3()
-            gyro.x = data[0] / constants.CONVERSION_MASK_GYRO_16BIT_FLOAT * constants.GYRO_RANGE_250_FLOAT * (math.pi / 180) 
-            gyro.y = data[1] / constants.CONVERSION_MASK_GYRO_16BIT_FLOAT * constants.GYRO_RANGE_250_FLOAT * (math.pi / 180) 
-            gyro.z = data[2] / constants.CONVERSION_MASK_GYRO_16BIT_FLOAT * constants.GYRO_RANGE_250_FLOAT * (math.pi / 180) 
+            to_rad_per_sec = 1 / constants.CONVERSION_MASK_16BIT_FLOAT * constants.GYRO_RANGE_250_FLOAT * (math.pi / 180)
+            gyro.x = data[0] * to_rad_per_sec
+            gyro.y = data[1] * to_rad_per_sec
+            gyro.z = data[2] * to_rad_per_sec
             
             # fetch all accel values - return in m/s²
             accel = Vector3()
-            accel.x = data[3] * constants.GRAVITY_CONSTANT / constants.CONVERSION_MASK_GRAV_16BIT_FLOAT * constants.ACCEL_RANGE_4G_FLOAT 
-            accel.y = data[4] * constants.GRAVITY_CONSTANT / constants.CONVERSION_MASK_GRAV_16BIT_FLOAT * constants.ACCEL_RANGE_4G_FLOAT 
-            accel.z = data[5] * constants.GRAVITY_CONSTANT / constants.CONVERSION_MASK_GRAV_16BIT_FLOAT * constants.ACCEL_RANGE_4G_FLOAT 
+            to_g = constants.GRAVITY_CONSTANT / constants.CONVERSION_MASK_16BIT_FLOAT * constants.ACCEL_RANGE_2G_FLOAT
+            accel.x = data[3] * to_g
+            accel.y = data[4] * to_g
+            accel.z = data[5] * to_g
+
 
             imu_msg.angular_velocity = gyro
             imu_msg.angular_velocity_covariance = constants.EMPTY_ARRAY_9
